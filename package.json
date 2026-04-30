@@ -1,0 +1,14 @@
+{
+  "name": "flap-me-daddy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Razan-Paudel",
+  "license": "ISC",
+  "description": "flappy bird but you are the bird and the pole",
+  "keywords": [
+    "flap"
+  ]
+}

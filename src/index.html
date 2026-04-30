@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flappy Bird Clone</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: skyblue; }
+    canvas { display: block; margin: auto; background: #70c5ce; }
+  </style>
+<link rel="stylesheet" href="/src/index.css">
+
+</head>
+
+
+</head>
+<body>
+<div class="dialog">
+  Do you want to restart the game?
+  <button id="restartBtn">Restart</button>
+  <button id="closeBtn">Close</button>
+</div>
+<audio id="bgMusic" src="/src/media/panxi_banu.mp3"  loop></audio>
+<audio id="overmusic" src="/src/media/modi-ji-bkl.mp3"  ></audio>
+
+
+<canvas id="gameCanvas" width="1500" height="750">
+
+
+</canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const dialog = document.querySelector(".dialog");
+const restartBtn = document.getElementById("restartBtn");
+const closeBtn = document.getElementById("closeBtn");
+const poleimage = new Image();
+poleimage.src = "/src/media/dhruv_bird.png";
+const birdimage = new Image();
+birdimage.src = "/src/media/modi_pole.jpg";
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const birdheight=birdimage.naturalHeight;
+const birdwidth=birdimage.naturalWidth;
+const birdaspectRatio=birdimage.naturalWidth/birdimage.naturalHeight;
+
+
+const poleheight=poleimage.naturalHeight;
+const polewidth=poleimage.naturalWidth;
+const poleaspectRatio=poleimage.naturalWidth/poleimage.naturalHeight;
+
+canvas.bgColor = "black";
+
+
+//audio
+const bgMusic = document.getElementById("bgMusic");
+const overmusic = document.getElementById("overmusic");
+// bgMusic.pause();
+
+
+//change color of canvas
+const gradient = ctx.createLinearGradient(0, 0, 400, 0);
+gradient.addColorStop(0, "red");
+gradient.addColorStop(1, "yellow");
+
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+restartBtn.addEventListener("click", () => {
+  resetGame();
+  dialog.style.display = "none";
+});
+closeBtn.addEventListener("click", () => {
+  dialog.style.display = "none";
+});
+
+let bird = { x: 50, y: 150, width: birdaspectRatio * birdheight, height: birdheight, gravity: 0.6, lift: -10, velocity: 0 };
+let pipes = [];
+let frame = 0;
+let score = 0;
+let gameOver = false;
+
+function drawBird() {
+  ctx.drawImage(birdimage, bird.x, bird.y, bird.width, bird.height);
+}
+
+function updateBird() {
+  bird.velocity += bird.gravity;
+  bird.y += bird.velocity;
+
+  if (bird.y + bird.height > canvas.height || bird.y < 0) {
+    gameOver = true;
+  } 
+}
+
+
+
+function drawPipes() {
+  ctx.fillStyle = "green";
+  pipes.forEach(pipe => {
+    ctx.drawImage(poleimage, pipe.x, 0, pipe.width, pipe.top);
+    ctx.drawImage(poleimage, pipe.x, canvas.height - pipe.bottom, pipe.width, pipe.bottom);
+  });
+}
+
+function updatePipes() {
+  if (frame % 96 === 0) {
+    let top = Math.random() * 200 + 50;
+    let gap = 330 - score * 5; // Decrease gap as score increases
+    pipes.push({ x: canvas.width, top: top, bottom: canvas.height - top - gap, width: 100 });
+  }
+
+  pipes.forEach(pipe => {
+    pipe.x -= 2;
+
+    // Collision
+    if (
+      bird.x < pipe.x + pipe.width &&
+      bird.x + bird.width > pipe.x &&
+      (bird.y < pipe.top || bird.y + bird.height > canvas.height - pipe.bottom)
+    ) {
+      gameOver = true;
+    }
+
+    // Score
+    if (pipe.x === bird.x) {
+      score++;
+    }
+  });
+}
+
+function drawScore() {
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 10, 25);
+}
+
+function showGameOver() {
+  ctx.fillStyle = "black";
+  ctx.font = "30px Arial";
+  ctx.fillText("Game Over", 120, 300);
+  //show restart buttion option
+  dialog.style.display = "block";
+  
+}
+
+function resetGame() {
+  bird = { x: 50, y: 150, width: birdaspectRatio * 80, height: 80, gravity: 0.6, lift: -10, velocity: 0 };
+  pipes = [];
+  frame = 0;
+  score = 0;
+  gameOver = false;
+ 
+bgMusic.play();
+
+  loop();
+}
+
+
+
+function loop() {
+  if (gameOver) {
+    showGameOver();
+    bgMusic.pause();
+    overmusic.play();
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawBird();
+  updateBird();
+
+  drawPipes();
+  updatePipes();
+
+  drawScore();
+
+  frame++;
+  requestAnimationFrame(loop);
+}
+
+// Controls
+window.addEventListener("keydown", () => {
+  bird.velocity = bird.lift;
+});
+
+canvas.addEventListener("click", () => {
+  bird.velocity = bird.lift;
+});
+
+loop();
+</script>
+</body>
+</html>
