@@ -6,10 +6,7 @@
     body { margin: 0; overflow: hidden; background: skyblue; }
     canvas { display: block; margin: auto; background: #70c5ce; }
   </style>
-<link rel="stylesheet" href="/src/index.css">
-
-</head>
-
+<link rel="stylesheet" href="index.css">
 
 </head>
 <body>
@@ -18,9 +15,8 @@
   <button id="restartBtn">Restart</button>
   <button id="closeBtn">Close</button>
 </div>
-<audio id="bgMusic" src="/client/media/panxi_banu.mp3"  loop></audio>
-<audio id="overmusic" src="/client/media/modi-ji-bkl.mp3"  ></audio>
-
+<audio id="bgMusic" src="media/panxi_banu.mp3"  loop></audio>
+<audio id="overmusic" src="media/modi-ji-bkl.mp3"  ></audio>
 
 <canvas id="gameCanvas" width="1500" height="750">
 
@@ -34,20 +30,17 @@ const dialog = document.querySelector(".dialog");
 const restartBtn = document.getElementById("restartBtn");
 const closeBtn = document.getElementById("closeBtn");
 const poleimage = new Image();
-poleimage.src = "/media/dhruv_bird.png";
+poleimage.src = "media/dhruv_bird.png";
 const birdimage = new Image();
-birdimage.src = "/media/modi_pole.jpg";
+birdimage.src = "media/modi_pole.jpg";
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const birdheight=birdimage.naturalHeight;
-const birdwidth=birdimage.naturalWidth;
-const birdaspectRatio=birdimage.naturalWidth/birdimage.naturalHeight;
-
-
-const poleheight=poleimage.naturalHeight;
-const polewidth=poleimage.naturalWidth;
-const poleaspectRatio=poleimage.naturalWidth/poleimage.naturalHeight;
+// Avoid reading naturalWidth/naturalHeight before images load (they are 0 until loaded).
+// Use sensible default sizes; images will still draw using their intrinsic size when available.
+const DEFAULT_BIRD_WIDTH = 80;
+const DEFAULT_BIRD_HEIGHT = 60;
+const DEFAULT_PIPE_WIDTH = 100;
 
 canvas.bgColor = "black";
 
@@ -75,7 +68,7 @@ closeBtn.addEventListener("click", () => {
   dialog.style.display = "none";
 });
 
-let bird = { x: 50, y: 150, width: birdaspectRatio * birdheight, height: birdheight, gravity: 0.6, lift: -10, velocity: 0 };
+let bird = { x: 50, y: 150, width: DEFAULT_BIRD_WIDTH, height: DEFAULT_BIRD_HEIGHT, gravity: 0.6, lift: -10, velocity: 0 };
 let pipes = [];
 let frame = 0;
 let score = 0;
@@ -108,7 +101,9 @@ function updatePipes() {
   if (frame % 96 === 0) {
     let top = Math.random() * 200 + 50;
     let gap = 330 - score * 5; // Decrease gap as score increases
-    pipes.push({ x: canvas.width, top: top, bottom: canvas.height - top - gap, width: 100 });
+    // Ensure gap isn't too small
+    if (gap < 120) gap = 120;
+    pipes.push({ x: canvas.width, top: top, bottom: canvas.height - top - gap, width: DEFAULT_PIPE_WIDTH });
   }
 
   pipes.forEach(pipe => {
@@ -146,7 +141,7 @@ function showGameOver() {
 }
 
 function resetGame() {
-  bird = { x: 50, y: 150, width: birdaspectRatio * 80, height: 80, gravity: 0.6, lift: -10, velocity: 0 };
+  bird = { x: 50, y: 150, width: DEFAULT_BIRD_WIDTH, height: DEFAULT_BIRD_HEIGHT, gravity: 0.6, lift: -10, velocity: 0 };
   pipes = [];
   frame = 0;
   score = 0;
